@@ -1,0 +1,840 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <title>어행덕 중고거래 검색</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo",
+        "Noto Sans KR", system-ui, sans-serif;
+    }
+
+    body {
+      background: #f3f4f6;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+
+    .app {
+      width: 420px;
+      max-width: 100%;
+      height: 780px;
+      max-height: 100vh;
+      background: #ffffff;
+      border-radius: 24px;
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.12);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    /* 상단바 */
+    .header {
+      height: 60px;
+      display: flex;
+      align-items: center;
+      padding: 0 16px;
+      border-bottom: 1px solid #e5e7eb;
+      background: #ffffff;
+      gap: 10px;
+    }
+
+    .back-btn {
+      width: 28px;
+      height: 28px;
+      border-radius: 999px;
+      border: none;
+      background: #f3f4f6;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      cursor: pointer;
+    }
+
+    .logo-pin {
+      width: 30px;
+      height: 30px;
+      border-radius: 999px;
+      background: #facc15;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+    }
+
+    .header-title {
+      font-size: 15px;
+      font-weight: 600;
+      color: #111827;
+    }
+
+    .header-sub {
+      font-size: 11px;
+      color: #6b7280;
+    }
+
+    .header-text {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    /* 검색바 */
+    .search-bar-wrap {
+      padding: 10px 14px 6px;
+      background: #ffffff;
+    }
+
+    .search-bar {
+      display: flex;
+      align-items: center;
+      background: #fffbeb;
+      border-radius: 999px;
+      border: 2px solid #facc15;
+      padding: 6px 12px;
+      gap: 6px;
+    }
+
+    .search-icon {
+      font-size: 16px;
+      color: #f59e0b;
+    }
+
+    .search-input {
+      border: none;
+      outline: none;
+      background: transparent;
+      width: 100%;
+      font-size: 14px;
+    }
+
+    .search-clear {
+      border: none;
+      background: transparent;
+      font-size: 16px;
+      color: #d1d5db;
+      cursor: pointer;
+    }
+
+    .search-helper {
+      padding: 4px 2px 2px;
+      font-size: 11px;
+      color: #9ca3af;
+    }
+
+    .search-helper span {
+      color: #f59e0b;
+      font-weight: 500;
+    }
+
+    /* 태그(세부 카테고리) 버튼 */
+    .tag-row {
+      padding: 4px 14px 8px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      background: #ffffff;
+      border-bottom: 1px solid #e5e7eb;
+    }
+
+    .tag-btn {
+      border-radius: 999px;
+      border: 1px solid #e5e7eb;
+      background: #f9fafb;
+      font-size: 11px;
+      padding: 5px 10px;
+      cursor: pointer;
+      color: #4b5563;
+      transition: background 0.1s ease, border-color 0.1s ease, transform 0.05s ease;
+    }
+
+    .tag-btn:hover {
+      background: #fef3c7;
+    }
+
+    .tag-btn.active {
+      background: #facc15;
+      border-color: #fbbf24;
+      color: #111827;
+      font-weight: 600;
+    }
+
+    /* 본문 */
+    .main {
+      flex: 1;
+      background: #f9fafb;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .result-header {
+      padding: 8px 14px 4px;
+      font-size: 12px;
+      color: #6b7280;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .result-header span strong {
+      color: #111827;
+    }
+
+    .sort-pill {
+      font-size: 11px;
+      padding: 4px 8px;
+      border-radius: 999px;
+      background: #e5e7eb;
+      color: #4b5563;
+    }
+
+    .product-list {
+      flex: 1;
+      overflow-y: auto;
+      padding: 6px 10px 10px;
+    }
+
+    .product-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .product-card {
+      background: #ffffff;
+      border-radius: 16px;
+      border: 1px solid #e5e7eb;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .product-image {
+      height: 120px;
+      border-bottom: 1px solid #f3f4f6;
+      background: #fef9c3;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      color: #374151;
+      text-align: center;
+      padding: 4px;
+    }
+
+    .product-image img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .product-body {
+      padding: 6px 8px 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+
+    .product-title {
+      font-size: 12px;
+      font-weight: 600;
+      color: #111827;
+      line-height: 1.3;
+      min-height: 30px;
+    }
+
+    .product-meta {
+      font-size: 11px;
+      color: #6b7280;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .product-chip {
+      font-size: 10px;
+      padding: 2px 6px;
+      border-radius: 999px;
+      background: #eff6ff;
+      color: #1d4ed8;
+    }
+
+    .product-price {
+      font-size: 13px;
+      font-weight: 700;
+      color: #111827;
+      margin-top: 2px;
+    }
+
+    .no-result {
+      padding: 40px 16px;
+      text-align: center;
+      font-size: 13px;
+      color: #9ca3af;
+    }
+
+    .no-result strong {
+      color: #111827;
+    }
+
+    /* 하단 네비 (검색 탭 활성화 버전) */
+    .bottom-nav {
+      height: 60px;
+      border-top: 1px solid #e5e7eb;
+      background: #ffffff;
+      display: flex;
+      align-items: center;
+      justify-content: space-around;
+      font-size: 11px;
+    }
+
+    .nav-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2px;
+      color: #9ca3af;
+    }
+
+    .nav-item .icon {
+      width: 22px;
+      height: 22px;
+      border-radius: 999px;
+      border: 1px solid #d1d5db;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+    }
+
+    .nav-item.active {
+      color: #f59e0b;
+      font-weight: 600;
+    }
+
+    .nav-item.active .icon {
+      background: #fef3c7;
+      border-color: #facc15;
+    }
+
+    @media (max-width: 480px) {
+      .app {
+        width: 100%;
+        height: 100vh;
+        border-radius: 0;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <!-- 상단 -->
+    <div class="header">
+      <button class="back-btn" title="뒤로가기">←</button>
+      <div class="logo-pin">🦆</div>
+      <div class="header-text">
+        <div class="header-title">중고거래 통합 검색</div>
+        <div class="header-sub">K-POP · 애니메이션 · 캐릭터 굿즈 한 번에 찾기</div>
+      </div>
+    </div>
+
+    <!-- 검색바 -->
+    <div class="search-bar-wrap">
+      <div class="search-bar">
+        <span class="search-icon">🔍</span>
+        <input
+          id="searchInput"
+          class="search-input"
+          type="text"
+          placeholder="그룹/캐릭터/상품명을 입력하세요"
+        />
+        <button id="clearBtn" class="search-clear" title="지우기">✕</button>
+      </div>
+      <div class="search-helper">
+        예시) <span>NCT 마크 포카</span>, <span>귀멸 피규어</span>, <span>산리오 인형</span>, <span>다마고치</span>
+      </div>
+    </div>
+
+    <!-- 태그 버튼 (세부 카테고리) -->
+    <div class="tag-row" id="tagRow">
+      <!-- JS에서 생성 -->
+    </div>
+
+    <!-- 결과 영역 -->
+    <div class="main">
+      <div class="result-header">
+        <span id="resultText">추천 상품 <strong>0</strong>개</span>
+        <span class="sort-pill">인기순(샘플)</span>
+      </div>
+      <div class="product-list">
+        <div id="productGrid" class="product-grid"></div>
+        <div id="noResult" class="no-result" style="display:none;">
+          <strong>검색 결과가 없어요.</strong><br/>
+          철자를 다시 확인하거나 다른 키워드로 검색해 주세요 :)
+        </div>
+      </div>
+    </div>
+
+    <!-- 하단 네비게이션 -->
+    <div class="bottom-nav">
+      <div class="nav-item">
+        <div class="icon">🗺️</div>
+        <span>덕질지도</span>
+      </div>
+      <div class="nav-item active">
+        <div class="icon">🔍</div>
+        <span>검색</span>
+      </div>
+      <div class="nav-item">
+        <div class="icon">👤</div>
+        <span>MY</span>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ===== 세부 카테고리 정의 =====
+    const subCategories = [
+      { id: "NCT", label: "NCT", group: "K-POP" },
+      { id: "RIIZE", label: "RIIZE", group: "K-POP" },
+      { id: "BLACKPINK", label: "BLACKPINK", group: "K-POP" },
+      { id: "DEMON_SLAYER", label: "귀멸의 칼날", group: "애니메이션" },
+      { id: "HAIKYU", label: "하이큐", group: "애니메이션" },
+      { id: "SANRIO", label: "산리오", group: "캐릭터" },
+      { id: "LABUBU", label: "라부부", group: "캐릭터" },
+      { id: "TAMAGOTCHI", label: "다마고치", group: "캐릭터" },
+      { id: "GHIBLI", label: "지브리", group: "캐릭터" },
+      { id: "KAKAO", label: "카카오프렌즈", group: "캐릭터" },
+      { id: "GANADI", label: "가나디", group: "캐릭터" }
+    ];
+
+    // ===== 상품 리스트 (이미지 경로 포함) =====
+    const products = [
+      // K-POP - NCT
+      {
+        id: "p1",
+        category: "K-POP",
+        sub: "NCT",
+        title: "NCT DREAM 마크 포토카드 세트",
+        price: 8000,
+        badge: "공식 MD",
+        keywords: ["엔시티", "마크", "포카", "포토카드", "nct"],
+        img: "images/kpop_nct_mark.png"
+      },
+      {
+        id: "p2",
+        category: "K-POP",
+        sub: "NCT",
+        title: "엔시티 위시 유우시 포카 일괄",
+        price: 12000,
+        badge: "앨범 특전",
+        keywords: ["엔시티 위시", "유우시", "포카", "wish", "nct wish"],
+        img: "images/kpop_nct_yuusi.png"
+      },
+      {
+        id: "p3",
+        category: "K-POP",
+        sub: "NCT",
+        title: "NCT 태용 포카 모음",
+        price: 15000,
+        badge: "일괄 판매",
+        keywords: ["태용", "체리밤", "포카", "nct"],
+        img: "images/kpop_nct_taeyong.png"
+      },
+
+      // K-POP - RIIZE
+      {
+        id: "p4",
+        category: "K-POP",
+        sub: "RIIZE",
+        title: "RIIZE 공식 슬로건 세트",
+        price: 9000,
+        badge: "공방 제작",
+        keywords: ["라이즈", "슬로건", "응원봉", "riize"],
+        img: "images/kpop_riize_slogan.png"
+      },
+      {
+        id: "p5",
+        category: "K-POP",
+        sub: "RIIZE",
+        title: "RIIZE 포토카드 바인더",
+        price: 13000,
+        badge: "보관용",
+        keywords: ["라이즈", "포카바인더", "바인더", "riize"],
+        img: "images/kpop_riize_binder.png"
+      },
+
+      // K-POP - BLACKPINK
+      {
+        id: "p6",
+        category: "K-POP",
+        sub: "BLACKPINK",
+        title: "BLACKPINK 제니 콘서트 포카",
+        price: 11000,
+        badge: "콘서트 MD",
+        keywords: ["블랙핑크", "제니", "포카", "bp", "blackpink"],
+        img: "images/kpop_bp_jennie.png"
+      },
+      {
+        id: "p7",
+        category: "K-POP",
+        sub: "BLACKPINK",
+        title: "블랙핑크 공식 응원봉 ver.2",
+        price: 25000,
+        badge: "응원봉",
+        keywords: ["블핑봉", "라이트스틱", "blackpink"],
+        img: "images/kpop_bp_lightstick.png"
+      },
+
+      // 애니메이션 - 귀멸의 칼날
+      {
+        id: "p8",
+        category: "애니메이션",
+        sub: "귀멸의 칼날",
+        title: "귀멸의 칼날 렌고쿠 피규어",
+        price: 64000,
+        badge: "피규어",
+        keywords: ["귀멸", "귀칼", "렌고쿠", "피규어"],
+        img: "images/ani_ds_rengoku.png"
+      },
+      {
+        id: "p9",
+        category: "애니메이션",
+        sub: "귀멸의 칼날",
+        title: "귀멸의 칼날 주합회의 콜렉팅 카드",
+        price: 32000,
+        badge: "카드 세트",
+        keywords: ["귀멸", "주합회의", "카드"],
+        img: "images/ani_ds_card.png"
+      },
+      {
+        id: "p10",
+        category: "애니메이션",
+        sub: "귀멸의 칼날",
+        title: "탄지로 & 네즈코 큐포스켓",
+        price: 28000,
+        badge: "피규어 세트",
+        keywords: ["탄지로", "네즈코", "큐포스켓"],
+        img: "images/ani_ds_qposket.png"
+      },
+
+      // 애니메이션 - 하이큐
+      {
+        id: "p11",
+        category: "애니메이션",
+        sub: "하이큐",
+        title: "하이큐 히나타 피규어",
+        price: 21000,
+        badge: "피규어",
+        keywords: ["하이큐", "히나타", "배구"],
+        img: "images/ani_hq_hinata.png"
+      },
+      {
+        id: "p12",
+        category: "애니메이션",
+        sub: "하이큐",
+        title: "카라스노 배구부 아크릴 키링 세트",
+        price: 14000,
+        badge: "키링",
+        keywords: ["하이큐", "카라스노", "키링"],
+        img: "images/ani_hq_keyring.png"
+      },
+
+      // 캐릭터 - 산리오
+      {
+        id: "p13",
+        category: "캐릭터",
+        sub: "산리오",
+        title: "산리오 시나모롤 눈꽃요정 인형",
+        price: 10000,
+        badge: "정품",
+        keywords: ["산리오", "시나모롤", "인형", "시나모롤 인형"],
+        img: "images/char_sanrio_cinnamoroll.png"
+      },
+      {
+        id: "p14",
+        category: "캐릭터",
+        sub: "산리오",
+        title: "마이멜로디 교복 인형 키링",
+        price: 11000,
+        badge: "키링",
+        keywords: ["산리오", "마멜", "마이멜로디", "키링"],
+        img: "images/char_sanrio_mymelody.png"
+      },
+      {
+        id: "p15",
+        category: "캐릭터",
+        sub: "산리오",
+        title: "바나나 포차코 스트랩 키링",
+        price: 9000,
+        badge: "키링",
+        keywords: ["산리오", "포차코", "키링"],
+        img: "images/char_sanrio_pochacco.png"
+      },
+
+      // 캐릭터 - 라부부
+      {
+        id: "p16",
+        category: "캐릭터",
+        sub: "라부부",
+        title: "라부부 미니 피규어 블라인드 박스",
+        price: 18000,
+        badge: "피규어",
+        keywords: ["라부부", "labubu", "피규어"],
+        img: "images/char_labubu_blind.png"
+      },
+      {
+        id: "p17",
+        category: "캐릭터",
+        sub: "라부부",
+        title: "라부부 캐릭터 키링 세트",
+        price: 15000,
+        badge: "키링 세트",
+        keywords: ["라부부", "키링"],
+        img: "images/char_labubu_keyring.png"
+      },
+
+      // 캐릭터 - 다마고치
+      {
+        id: "p18",
+        category: "캐릭터",
+        sub: "다마고치",
+        title: "다마고치 파라다이스 퍼플",
+        price: 74000,
+        badge: "본체",
+        keywords: ["다마고치", "파라다이스", "본체"],
+        img: "images/char_tamagotchi_purple.png"
+      },
+      {
+        id: "p19",
+        category: "캐릭터",
+        sub: "다마고치",
+        title: "다마고치 썸 매지컬 퍼플",
+        price: 216000,
+        badge: "한정판",
+        keywords: ["다마고치", "썸", "한정판"],
+        img: "images/char_tamagotchi_magic.png"
+      },
+
+      // 캐릭터 - 지브리
+      {
+        id: "p20",
+        category: "캐릭터",
+        sub: "지브리",
+        title: "토토로 봉제 인형 (대형)",
+        price: 35000,
+        badge: "지브리",
+        keywords: ["지브리", "토토로", "인형"],
+        img: "images/char_ghibli_totoro.png"
+      },
+      {
+        id: "p21",
+        category: "캐릭터",
+        sub: "지브리",
+        title: "키키 배달부 지브리 머그컵",
+        price: 17000,
+        badge: "머그컵",
+        keywords: ["지브리", "키키", "머그"],
+        img: "images/char_ghibli_kiki.png"
+      },
+
+      // 캐릭터 - 카카오프렌즈
+      {
+        id: "p22",
+        category: "캐릭터",
+        sub: "카카오프렌즈",
+        title: "라이언 수면 안대 인형",
+        price: 8000,
+        badge: "쿠션",
+        keywords: ["카카오", "라이언", "카카오프렌즈"],
+        img: "images/char_kakao_ryan.png"
+      },
+      {
+        id: "p23",
+        category: "캐릭터",
+        sub: "카카오프렌즈",
+        title: "어피치 미니 가습기",
+        price: 19000,
+        badge: "리빙",
+        keywords: ["어피치", "카카오", "가습기"],
+        img: "images/char_kakao_apeach.png"
+      },
+
+      // 캐릭터 - 가나디
+      {
+        id: "p24",
+        category: "캐릭터",
+        sub: "가나디",
+        title: "가나디 곰돌이 인형 세트",
+        price: 22000,
+        badge: "인형 세트",
+        keywords: ["가나디", "인형"],
+        img: "images/char_ganadi_set.png"
+      },
+      {
+        id: "p25",
+        category: "캐릭터",
+        sub: "가나디",
+        title: "가나디 베개 쿠션",
+        price: 26000,
+        badge: "쿠션",
+        keywords: ["가나디", "쿠션"],
+        img: "images/char_ganadi_cushion.png"
+      }
+    ];
+
+    // 검색용 문자열 미리 생성
+    products.forEach(p => {
+      const all = [
+        p.category,
+        p.sub,
+        p.title,
+        ...(p.keywords || [])
+      ].join(" ").toLowerCase();
+      p.searchText = all.replace(/\s+/g, "");
+    });
+
+    // ===== DOM 요소 =====
+    const searchInput = document.getElementById("searchInput");
+    const clearBtn = document.getElementById("clearBtn");
+    const productGrid = document.getElementById("productGrid");
+    const resultText = document.getElementById("resultText");
+    const noResult = document.getElementById("noResult");
+    const tagRow = document.getElementById("tagRow");
+
+    // 태그 버튼 렌더링
+    subCategories.forEach(sc => {
+      const btn = document.createElement("button");
+      btn.className = "tag-btn";
+      btn.textContent = `${sc.label}`;
+      btn.dataset.sub = sc.sub || sc.id;
+      tagRow.appendChild(btn);
+
+      btn.addEventListener("click", () => {
+        // active 표시
+        document
+          .querySelectorAll(".tag-btn")
+          .forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+
+        searchInput.value = sc.label;
+        doSearch();
+      });
+    });
+
+    // 상품 카드 렌더링
+    function renderProducts(list) {
+      productGrid.innerHTML = "";
+      if (list.length === 0) {
+        noResult.style.display = "block";
+        resultText.innerHTML = `검색 결과 <strong>0</strong>개`;
+        return;
+      }
+      noResult.style.display = "none";
+      resultText.innerHTML = `검색 결과 <strong>${list.length}</strong>개`;
+
+      list.forEach(p => {
+        const card = document.createElement("div");
+        card.className = "product-card";
+
+        const imgWrap = document.createElement("div");
+        imgWrap.className = "product-image";
+
+        if (p.img) {
+          const imageTag = document.createElement("img");
+          imageTag.src = p.img;
+          imageTag.alt = p.title;
+          imgWrap.appendChild(imageTag);
+        } else {
+          imgWrap.textContent = `${p.sub} / ${p.category}\n이미지 없음`;
+        }
+
+        const body = document.createElement("div");
+        body.className = "product-body";
+
+        const title = document.createElement("div");
+        title.className = "product-title";
+        title.textContent = p.title;
+
+        const meta = document.createElement("div");
+        meta.className = "product-meta";
+        const metaLeft = document.createElement("span");
+        metaLeft.textContent = p.sub;
+        const badge = document.createElement("span");
+        badge.className = "product-chip";
+        badge.textContent = p.badge;
+        meta.appendChild(metaLeft);
+        meta.appendChild(badge);
+
+        const price = document.createElement("div");
+        price.className = "product-price";
+        price.textContent = p.price.toLocaleString("ko-KR") + "원";
+
+        body.appendChild(title);
+        body.appendChild(meta);
+        body.appendChild(price);
+
+        card.appendChild(imgWrap);
+        card.appendChild(body);
+        productGrid.appendChild(card);
+      });
+    }
+
+    // 검색 실행
+    function doSearch() {
+      const raw = searchInput.value || "";
+      const query = raw.toLowerCase().replace(/\s+/g, "");
+
+      // 태그 active 리셋 (직접 입력 시)
+      if (document.activeElement === searchInput) {
+        document
+          .querySelectorAll(".tag-btn")
+          .forEach(b => b.classList.remove("active"));
+      }
+
+      if (!query) {
+        renderProducts(products); // 전체 추천
+        return;
+      }
+
+      const result = products.filter(p => p.searchText.includes(query));
+      renderProducts(result);
+    }
+
+    // 이벤트 바인딩
+    searchInput.addEventListener("input", () => {
+      doSearch();
+    });
+
+    searchInput.addEventListener("keydown", e => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        doSearch();
+      }
+    });
+
+    clearBtn.addEventListener("click", () => {
+      searchInput.value = "";
+      document
+        .querySelectorAll(".tag-btn")
+        .forEach(b => b.classList.remove("active"));
+      doSearch();
+      searchInput.focus();
+    });
+
+    // 초기 렌더: 추천 상품 전체
+    window.addEventListener("load", () => {
+      renderProducts(products);
+    });
+  </script>
+</body>
+</html>
