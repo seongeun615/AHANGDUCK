@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <title>생카 검색</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo",
+        "Noto Sans KR", system-ui, sans-serif;
+    }
+
+    body {
+      background: #f3f4f6;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+
+    .app {
+      width: 420px;
+      max-width: 100%;
+      height: 780px;
+      max-height: 100vh;
+      background: #ffffff;
+      border-radius: 24px;
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.12);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    /* 상단 바 */
+    .header {
+      height: 56px;
+      display: flex;
+      align-items: center;
+      padding: 0 16px;
+      border-bottom: 1px solid #e5e7eb;
+      background: #ffffff;
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex: 1;
+    }
+
+    .back-btn {
+      width: 28px;
+      height: 28px;
+      border-radius: 999px;
+      border: none;
+      background: #f3f4f6;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      cursor: pointer;
+    }
+
+    .header-title {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .header-title-main {
+      font-size: 14px;
+      font-weight: 600;
+      color: #111827;
+    }
+
+    .header-title-sub {
+      font-size: 12px;
+      color: #6b7280;
+    }
+
+    .header-right {
+      min-width: 40px;
+      text-align: right;
+      font-size: 18px;
+      color: #9ca3af;
+    }
+
+    /* 검색 영역 */
+    .search-area {
+      padding: 10px 16px 6px;
+      background: #ffffff;
+      border-bottom: 1px solid #e5e7eb;
+    }
+
+    .search-bar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: #f3f4f6;
+      border-radius: 999px;
+      padding: 6px 12px;
+    }
+
+    .search-icon {
+      font-size: 16px;
+      color: #9ca3af;
+    }
+
+    .search-input {
+      border: none;
+      outline: none;
+      background: transparent;
+      flex: 1;
+      font-size: 13px;
+    }
+
+    .search-clear {
+      border: none;
+      background: transparent;
+      font-size: 14px;
+      color: #9ca3af;
+      cursor: pointer;
+    }
+
+    .hint-text {
+      font-size: 11px;
+      color: #6b7280;
+      margin-top: 4px;
+    }
+
+    .hint-text span {
+      color: #f59e0b;
+      font-weight: 600;
+    }
+
+    /* 빠른 검색 버튼 (리쿠/유우시) */
+    .quick-filters {
+      padding: 6px 16px 8px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      background: #ffffff;
+      border-bottom: 1px solid #e5e7eb;
+    }
+
+    .chip {
+      border: none;
+      border-radius: 999px;
+      padding: 6px 10px;
+      font-size: 11px;
+      background: #fff7cc;
+      color: #92400e;
+      cursor: pointer;
+    }
+
+    .chip.secondary {
+      background: #eff6ff;
+      color: #1d4ed8;
+    }
+
+    /* 결과 영역 */
+    .result-area {
+      flex: 1;
+      overflow-y: auto;
+      padding: 8px 12px 12px;
+      background: #f9fafb;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .result-count {
+      font-size: 11px;
+      color: #6b7280;
+      margin: 2px 4px 6px;
+    }
+
+    .card {
+      background: #ffffff;
+      border-radius: 14px;
+      padding: 10px 12px;
+      box-shadow: 0 2px 6px rgba(15, 23, 42, 0.04);
+      border: 1px solid #e5e7eb;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .cafe-name {
+      font-size: 13px;
+      font-weight: 600;
+      color: #111827;
+    }
+
+    .member-pill {
+      font-size: 11px;
+      padding: 2px 8px;
+      border-radius: 999px;
+      background: #fee2e2;
+      color: #b91c1c;
+    }
+
+    .member-pill.yushi {
+      background: #e0f2fe;
+      color: #1d4ed8;
+    }
+
+    .meta-row {
+      font-size: 11px;
+      color: #6b7280;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .meta-row span + span::before {
+      content: "· ";
+      margin: 0 2px;
+    }
+
+    .tag-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+      margin-top: 2px;
+    }
+
+    .tag {
+      font-size: 10px;
+      padding: 2px 6px;
+      border-radius: 999px;
+      background: #f3f4f6;
+      color: #4b5563;
+    }
+
+    .no-result {
+      margin-top: 16px;
+      text-align: center;
+      font-size: 12px;
+      color: #9ca3af;
+    }
+
+    /* 하단 탭 네비게이션 (채팅 화면 톤 맞춰서) */
+    .bottom-nav {
+      height: 52px;
+      border-top: 1px solid #e5e7eb;
+      display: flex;
+      background: #ffffff;
+    }
+
+    .nav-item {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      color: #9ca3af;
+      gap: 2px;
+    }
+
+    .nav-item span.icon {
+      font-size: 16px;
+    }
+
+    .nav-item.active {
+      color: #111827;
+      font-weight: 600;
+    }
+
+    .nav-item.active span.icon {
+      color: #facc15;
+    }
+
+    @media (max-width: 480px) {
+      .app {
+        width: 100%;
+        height: 100vh;
+        border-radius: 0;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <!-- 상단 바 -->
+    <div class="header">
+      <div class="header-left">
+        <button class="back-btn" title="뒤로가기" onclick="history.back()">←</button>
+        <div class="header-title">
+          <span class="header-title-main">생일카페 검색</span>
+          <span class="header-title-sub">NCT WISH · 생카 지도</span>
+        </div>
+      </div>
+      <div class="header-right">🔍</div>
+    </div>
+
+    <!-- 검색 바 -->
+    <div class="search-area">
+      <div class="search-bar">
+        <span class="search-icon">🔎</span>
+        <input
+          id="searchInput"
+          class="search-input"
+          type="text"
+          placeholder="예) 리쿠 생카 / 윳냥이 연구소"
+        />
+        <button id="clearBtn" class="search-clear">✕</button>
+      </div>
+      <div class="hint-text">
+        <span>‘리쿠’</span>, <span>‘리쿠 생일카페’</span>, <span>‘리쿠 생카’</span>처럼 입력하면
+        해당 멤버의 생일카페가 한 번에 보여요.
+      </div>
+    </div>
+
+    <!-- 빠른 필터 -->
+    <div class="quick-filters">
+      <button class="chip" data-quick="riku">리쿠 생일카페 전체 보기</button>
+      <button class="chip secondary" data-quick="yushi">유우시 생일카페 전체 보기</button>
+    </div>
+
+    <!-- 결과 리스트 -->
+    <div class="result-area">
+      <div id="resultCount" class="result-count"></div>
+      <div id="resultList"></div>
+    </div>
+
+    <!-- 하단 탭 (검색 탭 활성화) -->
+    <div class="bottom-nav">
+      <div class="nav-item">
+        <span class="icon">🗺️</span>
+        <span>덕질지도</span>
+      </div>
+      <div class="nav-item active">
+        <span class="icon">🔍</span>
+        <span>검색</span>
+      </div>
+      <div class="nav-item">
+        <span class="icon">👤</span>
+        <span>MY</span>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // 생일카페 데이터 정의
+    const cafes = [
+      // 리쿠 생일카페들
+      {
+        id: "riku-1",
+        group: "NCT WISH",
+        member: "리쿠",
+        name: "리쿠의 꿈의 조각",
+        location: "서울/부산 일대 카페",
+        period: "예시) 6.25 ~ 6.29",
+        tags: ["포토카드 증정", "전시존"],
+        keywords: ["리쿠", "리쿠생카", "리쿠생일카페"]
+      },
+      {
+        id: "riku-2",
+        group: "NCT WISH",
+        member: "리쿠",
+        name: "산산기어",
+        location: "서울 합정",
+        period: "예시) 7.01 ~ 7.05",
+        tags: ["콜라보 굿즈", "한정 포스터"],
+        keywords: ["리쿠", "리쿠생카", "리쿠생일카페"]
+      },
+      {
+        id: "riku-3",
+        group: "NCT WISH",
+        member: "리쿠",
+        name: "One Summer Wish",
+        location: "부산 서면",
+        period: "예시) 7.10 ~ 7.14",
+        tags: ["서머 컨셉", "갤러리 전시"],
+        keywords: ["리쿠", "리쿠생카", "리쿠생일카페"]
+      },
+      {
+        id: "riku-4",
+        group: "NCT WISH",
+        member: "리쿠",
+        name: "깜고 증거자료 모음",
+        location: "서울 홍대",
+        period: "예시) 7.20 ~ 7.24",
+        tags: ["포토존", "컨셉 포카"],
+        keywords: ["리쿠", "리쿠생카", "리쿠생일카페"]
+      },
+      {
+        id: "riku-5",
+        group: "NCT WISH",
+        member: "리쿠",
+        name: "리쿠에게 딸기를",
+        location: "서울 강남",
+        period: "예시) 7.27 ~ 7.31",
+        tags: ["딸기 디저트", "스탬프 투어"],
+        keywords: ["리쿠", "리쿠생카", "리쿠생일카페"]
+      },
+      {
+        id: "riku-6",
+        group: "NCT WISH",
+        member: "리쿠",
+        name: "롱 베케이션",
+        location: "부산 해운대",
+        period: "예시) 8.01 ~ 8.04",
+        tags: ["바캉스 컨셉", "포스터 전시"],
+        keywords: ["리쿠", "리쿠생카", "리쿠생일카페"]
+      },
+      {
+        id: "riku-7",
+        group: "NCT WISH",
+        member: "리쿠",
+        name: "Wish Station",
+        location: "서울 신촌",
+        period: "예시) 8.10 ~ 8.14",
+        tags: ["스테이션 컨셉", "티켓굿즈"],
+        keywords: ["리쿠", "리쿠생카", "리쿠생일카페"]
+      },
+      {
+        id: "riku-8",
+        group: "NCT WISH",
+        member: "리쿠",
+        name: "후르츠 바스켓",
+        location: "서울 이태원",
+        period: "예시) 8.20 ~ 8.24",
+        tags: ["과일 디저트", "포토부스"],
+        keywords: ["리쿠", "리쿠생카", "리쿠생일카페"]
+      },
+      {
+        id: "riku-9",
+        group: "NCT WISH",
+        member: "리쿠",
+        name: "작전명! 큐피트",
+        location: "부산 광안리",
+        period: "예시) 8.28 ~ 9.01",
+        tags: ["러브레터 컨셉", "엽서 굿즈"],
+        keywords: ["리쿠", "리쿠생카", "리쿠생일카페"]
+      },
+
+      // 유우시 생일카페
+      {
+        id: "yushi-1",
+        group: "NCT WISH",
+        member: "유우시",
+        name: "윳냥이 연구소",
+        location: "서울 성수",
+        period: "예시) 9.05 ~ 9.09",
+        tags: ["냥이 컨셉", "포토카드 세트"],
+        keywords: ["유우시", "유우시생카", "유우시생일카페", "윳냥이"]
+      }
+    ];
+
+    const searchInput = document.getElementById("searchInput");
+    const clearBtn = document.getElementById("clearBtn");
+    const resultList = document.getElementById("resultList");
+    const resultCount = document.getElementById("resultCount");
+    const quickButtons = document.querySelectorAll(".chip");
+
+    function renderResults(items, queryText) {
+      resultList.innerHTML = "";
+
+      if (!items.length) {
+        resultCount.textContent = "검색 결과 0개";
+        const div = document.createElement("div");
+        div.className = "no-result";
+        div.textContent =
+          "조건에 맞는 생일카페가 없어요. 검색어를 조금 다르게 입력해 볼까요?";
+        resultList.appendChild(div);
+        return;
+      }
+
+      resultCount.textContent = `검색 결과 ${items.length}개`;
+
+      items.forEach((cafe) => {
+        const card = document.createElement("div");
+        card.className = "card";
+
+        const header = document.createElement("div");
+        header.className = "card-header";
+
+        const nameEl = document.createElement("div");
+        nameEl.className = "cafe-name";
+        nameEl.textContent = cafe.name;
+
+        const pill = document.createElement("div");
+        pill.className =
+          "member-pill " + (cafe.member === "유우시" ? "yushi" : "");
+        pill.textContent = `${cafe.member} · ${cafe.group}`;
+
+        header.appendChild(nameEl);
+        header.appendChild(pill);
+
+        const meta = document.createElement("div");
+        meta.className = "meta-row";
+        const span1 = document.createElement("span");
+        span1.textContent = cafe.location;
+        const span2 = document.createElement("span");
+        span2.textContent = cafe.period;
+        meta.appendChild(span1);
+        meta.appendChild(span2);
+
+        const tagRow = document.createElement("div");
+        tagRow.className = "tag-row";
+        cafe.tags.forEach((t) => {
+          const tag = document.createElement("div");
+          tag.className = "tag";
+          tag.textContent = t;
+          tagRow.appendChild(tag);
+        });
+
+        card.appendChild(header);
+        card.appendChild(meta);
+        card.appendChild(tagRow);
+        resultList.appendChild(card);
+      });
+    }
+
+    function searchCafes(query) {
+      const q = query.trim();
+      // 아무것도 안 쓰면 전체 리스트 보여주기
+      if (!q) {
+        renderResults(cafes, "");
+        return;
+      }
+
+      const collapsed = q.replace(/\s+/g, "").toLowerCase();
+
+      const filtered = cafes.filter((cafe) => {
+        const haystack =
+          (cafe.name +
+            " " +
+            cafe.member +
+            " " +
+            cafe.group +
+            " " +
+            cafe.keywords.join(" "))
+            .replace(/\s+/g, "")
+            .toLowerCase();
+
+        return haystack.includes(collapsed);
+      });
+
+      renderResults(filtered, q);
+    }
+
+    // 초기 화면: 전체 리스트
+    renderResults(cafes, "");
+
+    // 입력 검색
+    searchInput.addEventListener("input", (e) => {
+      searchCafes(e.target.value);
+    });
+
+    // X 버튼
+    clearBtn.addEventListener("click", () => {
+      searchInput.value = "";
+      searchCafes("");
+      searchInput.focus();
+    });
+
+    // 빠른 필터: 리쿠/유우시
+    quickButtons.forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const type = btn.getAttribute("data-quick");
+        if (type === "riku") {
+          searchInput.value = "리쿠 생일카페";
+          searchCafes("리쿠 생일카페");
+        } else if (type === "yushi") {
+          searchInput.value = "유우시 생일카페";
+          searchCafes("유우시 생일카페");
+        }
+      });
+    });
+  </script>
+</body>
+</html>

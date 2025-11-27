@@ -1,0 +1,671 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <title>어행덕 거래 문의</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo",
+        "Noto Sans KR", system-ui, sans-serif;
+    }
+
+    body {
+      background: #f3f4f6;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+
+    .app {
+      width: 420px;
+      max-width: 100%;
+      height: 780px;
+      max-height: 100vh;
+      background: #ffffff;
+      border-radius: 24px;
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.12);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    /* 상단 바 */
+    .header {
+      height: 56px;
+      display: flex;
+      align-items: center;
+      padding: 0 16px;
+      border-bottom: 1px solid #e5e7eb;
+      background: #ffffff;
+    }
+
+    .header-left,
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .header-left {
+      flex: 1;
+    }
+
+    .back-btn {
+      width: 28px;
+      height: 28px;
+      border-radius: 999px;
+      border: none;
+      background: #f3f4f6;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      cursor: pointer;
+    }
+
+    .chat-title {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .chat-title-main {
+      font-size: 14px;
+      font-weight: 600;
+      color: #111827;
+    }
+
+    .chat-title-sub {
+      font-size: 12px;
+      color: #6b7280;
+    }
+
+    .header-right {
+      justify-content: flex-end;
+      color: #9ca3af;
+      font-size: 20px;
+      min-width: 40px;
+    }
+
+    /* 거래 상대 정보 박스 (판매자) */
+    .partner-info {
+      background: #fff7cc; /* 연노랑 */
+      padding: 12px 16px;
+      display: flex;
+      gap: 12px;
+      border-bottom: 1px solid #facc15;
+    }
+
+    .partner-avatar {
+      width: 52px;
+      height: 52px;
+      border-radius: 50%;
+      background: #fde68a;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    .partner-avatar img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+
+    .partner-text {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .partner-row-1 {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .partner-nick {
+      font-weight: 600;
+      font-size: 14px;
+      color: #111827;
+    }
+
+    .partner-tag {
+      font-size: 11px;
+      padding: 2px 8px;
+      border-radius: 999px;
+      background: #fef3c7;
+      border: 1px solid #facc15;
+      color: #92400e;
+    }
+
+    .partner-row-2 {
+      font-size: 12px;
+      color: #6b7280;
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .partner-row-3 {
+      font-size: 11px;
+      color: #4b5563;
+    }
+
+    /* 상품 정보 카드 */
+    .product-card {
+      margin: 8px 16px;
+      padding: 8px 10px;
+      border-radius: 14px;
+      border: 1px solid #e5e7eb;
+      background: #f9fafb;
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .product-thumb {
+      width: 46px;
+      height: 46px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, #fee2e2, #bfdbfe);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+      color: #374151;
+      text-align: center;
+    }
+
+    .product-info {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .product-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: #111827;
+    }
+
+    .product-meta {
+      font-size: 11px;
+      color: #6b7280;
+    }
+
+    .product-meta span + span::before {
+      content: "· ";
+      margin: 0 1px;
+    }
+
+    .product-price {
+      font-size: 13px;
+      font-weight: 700;
+      color: #111827;
+    }
+
+    .product-link {
+      font-size: 11px;
+      color: #6366f1;
+      text-decoration: underline;
+      cursor: pointer;
+    }
+
+    .escrow-hint {
+      font-size: 11px;
+      color: #6b7280;
+      padding: 0 16px 4px;
+      background: #ffffff;
+    }
+
+    .escrow-hint span {
+      color: #2563eb;
+      font-weight: 500;
+      cursor: pointer;
+    }
+
+    /* 채팅 영역 */
+    .chat-body {
+      flex: 1;
+      padding: 8px 12px 12px;
+      overflow-y: auto;
+      background: #f9fafb;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .chat-date {
+      align-self: center;
+      font-size: 11px;
+      color: #9ca3af;
+      margin: 4px 0;
+    }
+
+    .message-row {
+      display: flex;
+      gap: 6px;
+      align-items: flex-end;
+      max-width: 85%;
+    }
+
+    .message-row.seller {
+      /* 왼쪽(판매자) */
+      justify-content: flex-start;
+    }
+
+    .message-row.buyer {
+      /* 오른쪽(구매자) */
+      margin-left: auto;
+      justify-content: flex-end;
+    }
+
+    .message-bubble {
+      padding: 8px 12px;
+      border-radius: 16px;
+      font-size: 13px;
+      line-height: 1.4;
+      word-break: break-word;
+      white-space: pre-line;
+    }
+
+    .message-row.seller .message-bubble {
+      background: #e5e7eb;
+      color: #111827;
+      border-bottom-left-radius: 4px;
+    }
+
+    .message-row.buyer .message-bubble {
+      background: #fde68a;
+      color: #111827;
+      border-bottom-right-radius: 4px;
+    }
+
+    .message-meta {
+      font-size: 10px;
+      color: #9ca3af;
+      margin: 2px 4px;
+    }
+
+    .message-meta.buyer {
+      text-align: right;
+    }
+
+    /* 카테고리 버튼 */
+    .quick-replies {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      padding: 0 12px 4px;
+    }
+
+    .quick-reply-btn {
+      border: none;
+      border-radius: 999px;
+      padding: 6px 10px;
+      font-size: 11px;
+      background: #eff6ff;
+      color: #1d4ed8;
+      cursor: pointer;
+      transition: background 0.1s ease, transform 0.05s ease;
+    }
+
+    .quick-reply-btn:hover {
+      background: #dbeafe;
+    }
+    .quick-reply-btn:active {
+      transform: scale(0.96);
+    }
+
+    /* 하단 입력창 */
+    .chat-input-area {
+      border-top: 1px solid #e5e7eb;
+      padding: 8px 10px;
+      background: #ffffff;
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .chat-input-wrapper {
+      flex: 1;
+      background: #f3f4f6;
+      border-radius: 999px;
+      padding: 6px 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .chat-input {
+      border: none;
+      outline: none;
+      background: transparent;
+      width: 100%;
+      font-size: 13px;
+    }
+
+    .chat-send-btn {
+      width: 32px;
+      height: 32px;
+      border-radius: 999px;
+      border: none;
+      background: #facc15;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 16px;
+      color: #111827;
+      transition: transform 0.08s ease, box-shadow 0.08s ease;
+    }
+
+    .chat-send-btn:active {
+      transform: scale(0.95);
+      box-shadow: 0 0 0 rgba(0, 0, 0, 0);
+    }
+
+    /* 모바일 적응 */
+    @media (max-width: 480px) {
+      .app {
+        width: 100%;
+        height: 100vh;
+        border-radius: 0;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <!-- 상단 바 -->
+    <div class="header">
+      <div class="header-left">
+        <button class="back-btn" title="뒤로가기">←</button>
+        <div class="chat-title">
+          <span class="chat-title-main">판매자 @duck1 님과의 거래</span>
+          <span class="chat-title-sub" id="chatTitleSub">판매자 · 등급</span>
+        </div>
+      </div>
+      <div class="header-right">⋯</div>
+    </div>
+
+    <!-- 거래 상대 정보 박스 -->
+    <div class="partner-info">
+      <div class="partner-avatar">
+        <!-- TODO: JS에서 src를 채워줄 거라 여기서는 빈 img -->
+        <img id="duckBadge" src="" alt="등급 배지" />
+      </div>
+      <div class="partner-text">
+        <div class="partner-row-1">
+          <div class="partner-nick">판매자 @duck1</div>
+          <div class="partner-tag" id="partnerTag">등급</div>
+        </div>
+        <div class="partner-row-2" id="partnerStats">
+          <!-- JS로 조건 텍스트 채움 -->
+        </div>
+        <div class="partner-row-3" id="partnerDesc">
+          <!-- JS로 설명 채움 -->
+        </div>
+      </div>
+    </div>
+
+    <!-- 상품 정보 카드 -->
+    <div class="product-card">
+      <div class="product-thumb">
+        굿즈<br />이미지
+      </div>
+      <div class="product-info">
+        <div class="product-title">귀멸의 칼날 피규어 모음</div>
+        <div class="product-meta">
+          <span>직거래(부산)</span>
+          <span>택배(+3,000원)</span>
+        </div>
+        <div class="product-price">10,000원</div>
+        <div class="product-link" id="productLink">상품 상세 보기 &gt;</div>
+      </div>
+    </div>
+
+    <div class="escrow-hint">
+      🔒 안전하게 거래하고 싶다면 <span id="escrowLink">에스크로 결제 안내</span>를 확인해 보세요.
+    </div>
+
+    <!-- 채팅 영역 -->
+    <div class="chat-body" id="chatBody">
+      <div class="chat-date">오늘</div>
+      <!-- 판매자/구매자 대화가 JS로 추가됨 -->
+    </div>
+
+    <!-- 카테고리 선택 버튼 영역 -->
+    <div class="quick-replies" id="quickReplies">
+      <button class="quick-reply-btn" data-type="deal">거래하고 싶어요</button>
+      <button class="quick-reply-btn" data-type="question">상품에 대한 문의가 있어요</button>
+      <button class="quick-reply-btn" data-type="price">가격 제안 드리고 싶어요</button>
+    </div>
+
+    <!-- 입력창 -->
+    <div class="chat-input-area">
+      <div class="chat-input-wrapper">
+        <input
+          id="chatInput"
+          class="chat-input"
+          type="text"
+          placeholder="메시지를 입력하세요...(구매자)"
+        />
+      </div>
+      <button id="sendBtn" class="chat-send-btn" title="전송">➤</button>
+    </div>
+  </div>
+
+  <script>
+    const chatBody = document.getElementById("chatBody");
+    const chatInput = document.getElementById("chatInput");
+    const sendBtn = document.getElementById("sendBtn");
+    const escrowLink = document.getElementById("escrowLink");
+    const quickReplies = document.getElementById("quickReplies");
+    const duckBadgeImg = document.getElementById("duckBadge");
+    const partnerTagEl = document.getElementById("partnerTag");
+    const partnerStatsEl = document.getElementById("partnerStats");
+    const partnerDescEl = document.getElementById("partnerDesc");
+    const chatTitleSubEl = document.getElementById("chatTitleSub");
+    const productLink = document.getElementById("productLink");
+
+    // TODO: 여기 이미지 경로를 너가 가진 파일명에 맞게 수정해줘!
+    // 예: 같은 폴더에 저장했다면 "sprout.png" 이런 식으로.
+    const levels = [
+      {
+        key: "seed",
+        name: "새싹덕",
+        label: "새싹덕 🌱",
+        img: "새싹덕.png", // 새싹덕 이미지
+        stats: ["기본 회원", "거래 시작 단계"],
+        desc: "어행덕 기본 회원이에요. 첫 거래를 준비 중인 새싹 덕후예요 🌱"
+      },
+      {
+        key: "baby",
+        name: "아기덕",
+        label: "아기덕 🐣",
+        img: "아기덕.png", // 아기덕 이미지
+        stats: ["거래 1회 이상", "후기 1개 이상 작성"],
+        desc: "거래와 후기를 모두 한 번 이상 남긴, 이제 막 적응한 아기 덕후예요."
+      },
+      {
+        key: "passion",
+        name: "열정덕",
+        label: "열정덕 🔥",
+        img: "열정덕.png", // 열정덕 이미지
+        stats: ["누적 거래 5회 이상", "후기 3개 이상", "평점 4.3 이상"],
+        desc: "여러 번 성실히 거래한 열정적인 덕후예요. 신뢰도도 높은 편이에요!"
+      },
+      {
+        key: "swan",
+        name: "백조덕",
+        label: "백조덕 🦢",
+        img: "백조덕.png", // 백조덕 이미지
+        stats: [
+          "누적 거래 20회 이상",
+          "후기 10개 이상",
+          "평점 4.7 이상",
+          "분쟁·클레임 0건"
+        ],
+        desc: "최상위 신뢰 등급의 거래자예요. 분쟁 없이 깨끗한 거래만 해온 레전드 덕후!"
+      }
+    ];
+
+    function getTimeString() {
+      const now = new Date();
+      return now.toLocaleTimeString("ko-KR", {
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: true
+      });
+    }
+
+    // 왼쪽: 판매자 말풍선
+    function addSellerMessage(text) {
+      const row = document.createElement("div");
+      row.className = "message-row seller";
+
+      const bubble = document.createElement("div");
+      bubble.className = "message-bubble";
+      bubble.textContent = text;
+
+      row.appendChild(bubble);
+      chatBody.appendChild(row);
+
+      const meta = document.createElement("div");
+      meta.className = "message-meta";
+      meta.textContent = `${getTimeString()} · 판매자`;
+      chatBody.appendChild(meta);
+
+      chatBody.scrollTop = chatBody.scrollHeight;
+    }
+
+    // 오른쪽: 구매자 말풍선
+    function addBuyerMessage(text) {
+      if (!text.trim()) return;
+
+      const row = document.createElement("div");
+      row.className = "message-row buyer";
+
+      const bubble = document.createElement("div");
+      bubble.className = "message-bubble";
+      bubble.textContent = text;
+
+      row.appendChild(bubble);
+      chatBody.appendChild(row);
+
+      const meta = document.createElement("div");
+      meta.className = "message-meta buyer";
+      meta.textContent = `${getTimeString()} · 나(구매자)`;
+      chatBody.appendChild(meta);
+
+      chatBody.scrollTop = chatBody.scrollHeight;
+    }
+
+    function handleSend() {
+      const text = chatInput.value;
+      if (!text.trim()) return;
+      addBuyerMessage(text);
+      chatInput.value = "";
+      // 자유 입력에는 자동응답 X (데모용)
+    }
+
+    // 카테고리 선택 시 동작
+    function handleQuickReply(type, label) {
+      addBuyerMessage(label);
+
+      // 한 번 선택하면 버튼 숨기기
+      quickReplies.style.display = "none";
+
+      let reply = "";
+      if (type === "deal") {
+        reply =
+          "네, 거래 가능해요! 😊\n원하시는 거래 방식(직거래/택배)과 가능한 시간대를 알려주시면 조율해 볼게요.";
+      } else if (type === "question") {
+        reply =
+          "상품 상태나 구성, 추가 사진 등 궁금하신 점 편하게 말씀해 주세요! 최대한 자세히 답변 드릴게요 🙂";
+      } else if (type === "price") {
+        reply =
+          "가격 제안도 가능해요! 생각하고 계신 금액을 보내주시면 검토 후 답변 드릴게요.";
+      }
+
+      setTimeout(() => {
+        addSellerMessage(reply);
+      }, 600);
+    }
+
+    // 랜덤 등급 적용
+    function applyRandomLevel() {
+      const randomIndex = Math.floor(Math.random() * levels.length);
+      const level = levels[randomIndex];
+
+      // 배지 이미지
+      duckBadgeImg.src = level.img;
+      duckBadgeImg.alt = level.name;
+
+      // 태그 텍스트
+      partnerTagEl.textContent = level.label;
+
+      // 상단 서브 타이틀도 업데이트
+      chatTitleSubEl.textContent = `판매자 · ${level.label}`;
+
+      // 조건(stats) 채우기
+      partnerStatsEl.innerHTML = "";
+      level.stats.forEach((s) => {
+        const span = document.createElement("span");
+        span.textContent = s;
+        partnerStatsEl.appendChild(span);
+      });
+
+      // 설명
+      partnerDescEl.textContent = level.desc;
+    }
+
+    // 이벤트 바인딩
+    sendBtn.addEventListener("click", handleSend);
+    chatInput.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        handleSend();
+      }
+    });
+
+    escrowLink.addEventListener("click", () => {
+      alert(
+        "여기에는 나중에 실제 에스크로 결제 안내 페이지(또는 링크)를 연결할 수 있어요 :)"
+      );
+    });
+
+    Array.from(document.querySelectorAll(".quick-reply-btn")).forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const type = btn.getAttribute("data-type");
+        const label = btn.textContent.trim();
+        handleQuickReply(type, label);
+      });
+    });
+
+    // 상품 상세 보기 → 피그마 링크로 이동
+    productLink.addEventListener("click", () => {
+      // TODO: 여기 URL을 실제 피그마 프로토타입 공유 링크로 교체해줘!
+      const figmaUrl = "https://www.figma.com/proto/1kOXysu7fpBYEfKFJScTJY/AHANGDUCK?node-id=43-11&t=XW982asW6qlrakyU-1";
+      window.open(figmaUrl, "_blank");
+    });
+
+    // 페이지 로드 시: 랜덤 등급 적용 + 첫 인사 메시지
+    window.addEventListener("load", () => {
+      applyRandomLevel();
+      addSellerMessage(
+        "안녕하세요! 😊 무엇을 문의하고 싶으신가요?\n아래에서 선택하시거나, 직접 메시지를 입력해 주세요."
+      );
+    });
+  </script>
+</body>
+</html>
